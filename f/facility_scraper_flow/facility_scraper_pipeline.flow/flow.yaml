@@ -1,0 +1,78 @@
+summary: A-G Facility Scraper Pipeline
+description: >
+  Runs facility scraper scripts A through G in sequence. Requires stateName for the Apify scrape step.
+value:
+  modules:
+    - id: a_detect
+      summary: A - Detect coverage
+      value:
+        type: script
+        path: f/facility_scraper_flow/a_apify_scrape_detect
+        input_transforms: {}
+    - id: b_start_scrape
+      summary: B - Start scrape
+      value:
+        type: script
+        path: f/facility_scraper_flow/b_apify_scrape
+        input_transforms:
+          stateName:
+            type: javascript
+            expr: flow_input.stateName
+          searchTerm:
+            type: javascript
+            expr: flow_input.searchTerm
+          maxCrawledPlacesPerSearch:
+            type: javascript
+            expr: flow_input.maxCrawledPlacesPerSearch
+    - id: c_consolidate
+      summary: C - Consolidate runs
+      value:
+        type: script
+        path: f/facility_scraper_flow/c_apify_consolidate_runs
+        input_transforms: {}
+    - id: d_clean
+      summary: D - Clean data
+      value:
+        type: script
+        path: f/facility_scraper_flow/d_apify_clean
+        input_transforms: {}
+    - id: e_scrape_emails
+      summary: E - Scrape emails
+      value:
+        type: script
+        path: f/facility_scraper_flow/e_sitemap_email_scrape
+        input_transforms: {}
+    - id: f_build_gold
+      summary: F - Build gold
+      value:
+        type: script
+        path: f/facility_scraper_flow/f_apify_gold
+        input_transforms: {}
+    - id: g_build_platinum
+      summary: G - Build platinum
+      value:
+        type: script
+        path: f/facility_scraper_flow/g_apify_platinum
+        input_transforms: {}
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  order:
+    - stateName
+    - searchTerm
+    - maxCrawledPlacesPerSearch
+  properties:
+    stateName:
+      type: string
+      description: State/province/location query for Apify scrape (e.g. Quebec)
+    searchTerm:
+      type: string
+      description: Search term passed to Apify Google Maps actor
+      default: self storage
+    maxCrawledPlacesPerSearch:
+      type: number
+      description: Max places to crawl for the Apify run
+      default: 2500
+  required:
+    - stateName
+ws_error_handler_muted: false

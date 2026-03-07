@@ -1,4 +1,4 @@
-summary: Build storage gold dataset from cleaned data and email sources
+summary: F - Build storage gold dataset from cleaned data and email sources
 description: >
   Reads cleaned facilities, sitemap-scraped emails, and Hunter CSV imports from S3,
   merges email sources per row, and writes facility-scraper/storage-gold/gold.json.

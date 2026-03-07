@@ -1,4 +1,4 @@
-summary: Scrape emails from sitemap/pages for cleaned facilities
+summary: E - Scrape emails from sitemap/pages for cleaned facilities
 description: >
   Reads cleaned facilities JSON from S3, dedupes website domains, scrapes sitemap/pages for emails,
   and writes domain-to-emails JSON plus domains-without-emails CSV to

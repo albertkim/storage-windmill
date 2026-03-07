@@ -1,4 +1,4 @@
-schedule: "0 * * * * *"
+schedule: "0 0 * * * *"
 on_failure: ""
 script_path: f/a_b_flow/a_b
 args: {}

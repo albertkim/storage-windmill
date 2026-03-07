@@ -1,4 +1,4 @@
-summary: Detect Apify scrape coverage and gaps by country/state
+summary: A - Detect Apify scrape coverage and gaps by country/state
 description: |
   Lists S3 objects under facility-scraper/apify/, parses country-state-date from keys,
   and returns the latest file per combo plus combos missing from S3 (Canada + US).

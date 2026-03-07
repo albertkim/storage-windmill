@@ -1,4 +1,4 @@
-summary: Start Apify Google Maps scrape for a state/province
+summary: B - Start Apify Google Maps scrape for a state/province
 description: Runs crawler-google-places with stateName mapped to locationQuery.
 kind: script
 schema:
