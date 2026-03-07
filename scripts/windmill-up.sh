@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-docker compose up
+docker compose up -d
+docker compose ps
