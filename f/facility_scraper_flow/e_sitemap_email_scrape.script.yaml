@@ -1,0 +1,11 @@
+summary: Scrape emails from sitemap/pages for cleaned facilities
+description: >
+  Reads cleaned facilities JSON from S3, dedupes website domains, scrapes sitemap/pages for emails,
+  and writes domain-to-emails JSON plus domains-without-emails CSV to
+  facility-scraper/storage-scraped-emails/.
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties: {}
+  required: []

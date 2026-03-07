@@ -1,12 +1,14 @@
 {
-  "name": "windmill-test",
+  "name": "storage-data",
   "type": "module",
   "private": true,
   "scripts": {
     "wm:up": "./scripts/windmill-up.sh",
     "wm:down": "docker compose down",
     "wm:logs": "docker compose logs -f windmill_server windmill_worker",
-    "wm:push": "./scripts/windmill-push.sh"
+    "wm:push": "./scripts/windmill-push.sh",
+    "env:encrypt": "node scripts/encrypt.js",
+    "env:decrypt": "node scripts/decrypt.js"
   },
   "dependencies": {
     "@types/bun": "^1.3.10",

@@ -1,5 +1,7 @@
 .env
 .env.*
+!.env.encrypted
 node_modules/
 .DS_Store
 *.log
+.vault_pass

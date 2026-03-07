@@ -1,0 +1,11 @@
+summary: Clean latest Apify scrape files and consolidate output
+description: >
+  Reads source files from S3 (facility-scraper/apify/), keeps the latest file per country-state combo,
+  cleans rows with keyword/category filters, and writes a consolidated cleaned JSON to
+  facility-scraper/apify-cleaned/cleaned.json.
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties: {}
+  required: []

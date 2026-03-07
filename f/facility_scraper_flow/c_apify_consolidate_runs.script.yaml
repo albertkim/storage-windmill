@@ -1,0 +1,20 @@
+summary: Reconcile Apify runs vs S3 uploads
+description: >
+  Checks recent Apify Google Maps runs, derives country-state combo/date from run input and run timestamp,
+  and logs placeholders for runs not yet uploaded to S3.
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties:
+    runLimit:
+      type: number
+      description: Number of recent runs to inspect
+      default: 100
+      originalType: number
+    timezone:
+      type: string
+      description: Timezone used to compute run date for S3 key matching
+      default: America/Vancouver
+      originalType: string
+  required: []
