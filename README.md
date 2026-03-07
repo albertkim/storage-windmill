@@ -8,8 +8,7 @@ script managed through Windmill sync.
 - `docker-compose.yml`, `.env`, `Caddyfile`: official self-host stack files
 - `wmill.yaml`: Windmill sync config
 - `dependencies/package.json`: workspace TypeScript dependencies (Windmill)
-- `f/hello/hello_world.ts`: TypeScript hello-world script
-- `f/hello/hello_world.script.yaml`: script metadata
+- `f/...`: Scripts and yml metadata
 - `scripts/windmill-up.sh`: starts local Windmill stack
 - `scripts/windmill-push.sh`: pushes repo content to Windmill workspace
 - `package.json`: npm scripts for common Windmill commands
@@ -23,8 +22,8 @@ bun wm:up
 
 Open `http://localhost` and sign in:
 
-- email: `admin@windmill.dev`
-- password: `changeme`
+- email: `admin@windmill.dev` (default from Windmill)
+- password: `changeme` (default from Windmill)
 
 ## 2) Create an API token
 
@@ -36,21 +35,16 @@ In Windmill UI:
 
 ## 3) Push local scripts to Windmill
 
-Preferred: use `.env.local` (not committed):
+Use `.env` as the single config file for:
+
+- Docker runtime config (`DATABASE_URL`, log settings)
+- Windmill push config (`WMILL_TOKEN`, `WMILL_BASE_URL`, `WMILL_WORKSPACE`)
+- Runtime variables with `SECRET_` prefix
+
+Then run:
 
 ```bash
-cp .env.local.example .env.local
-# edit .env.local and set WMILL_TOKEN
-npm run wm:push
-```
-
-Alternative: export values in your shell:
-
-```bash
-export WMILL_TOKEN='paste-your-token'
-export WMILL_BASE_URL='http://localhost'
-export WMILL_WORKSPACE='starter'
-npm run wm:push
+bun wm:push
 ```
 
 After push, run script path `f/hello/hello_world` in Windmill. It logs
@@ -60,12 +54,20 @@ For scripts using workspace deps, annotate script files (example):
 
 ```ts
 // package_json: default
-import dayjs from "dayjs";
+import dayjs from "dayjs"
 ```
 
 Useful commands:
 
 ```bash
-npm run wm:logs
-npm run wm:down
+bun wm:logs
+bun wm:down
 ```
+
+## Secrets management
+
+- Put shared runtime variables in `.env` with `SECRET_` prefix.
+- On `bun wm:push`, each `SECRET_*` entry syncs to:
+  - `f/secrets/<key_lowercase>`
+- Example:
+  - `SECRET_APIFY_API_TOKEN=...` -> `f/secrets/apify_api_token`

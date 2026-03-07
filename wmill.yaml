@@ -1,3 +1,7 @@
-includes: ["f/**", "dependencies/**"]
+includes:
+  - f/**
+  - dependencies/**
 excludes: []
-defaultTs: "bun"
+defaultTs: bun
+skipVariables: false
+skipSecrets: false

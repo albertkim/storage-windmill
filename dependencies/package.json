@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "dayjs": "1.11.19"
+    "apify-client": "^2.22.2",
+    "dayjs": "1.11.19",
+    "windmill-client": "^1"
   }
 }

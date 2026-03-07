@@ -1,5 +1,6 @@
 {
   "name": "windmill-test",
+  "type": "module",
   "private": true,
   "scripts": {
     "wm:up": "./scripts/windmill-up.sh",
@@ -8,6 +9,14 @@
     "wm:push": "./scripts/windmill-push.sh"
   },
   "dependencies": {
-    "dayjs": "^1.11.19"
+    "apify-client": "^2.22.2",
+    "dayjs": "^1.11.19",
+    "prettier": "^3.8.1",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "typescript": "^5.9.3",
+    "windmill-client": "^1.651.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.5"
   }
 }
