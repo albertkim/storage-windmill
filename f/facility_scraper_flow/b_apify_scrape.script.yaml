@@ -1,0 +1,23 @@
+summary: Start Apify Google Maps scrape for a state/province
+description: Runs crawler-google-places with stateName mapped to locationQuery.
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties:
+    stateName:
+      type: string
+      description: State/province/location query (e.g. Quebec)
+      originalType: string
+    searchTerm:
+      type: string
+      description: Google Maps search term
+      default: self storage
+      originalType: string
+    maxCrawledPlacesPerSearch:
+      type: number
+      description: Max places to crawl
+      default: 2500
+      originalType: number
+  required:
+    - stateName

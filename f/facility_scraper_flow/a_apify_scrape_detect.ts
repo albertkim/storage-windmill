@@ -1,4 +1,4 @@
-import { ApifyClient } from "apify-client"
+import { ActorRun, ApifyClient } from "apify-client"
 import * as wmill from "windmill-client"
 
 export async function main() {
@@ -22,6 +22,17 @@ export async function main() {
   // Get runs from actor
   const { items: runs } = await apifyClient.actor(googleMapsScraper.id).runs().list({ limit: 100 })
   console.log("Runs:", runs)
+
+  // Get details of each run
+  const runDetails: ActorRun[] = []
+  for (const run of runs) {
+    const actorRun = await apifyClient.run(run.id).get()
+    if (!actorRun) {
+      continue
+    }
+    runDetails.push(actorRun)
+  }
+  console.log("Run details:", runDetails)
 
   return { tokenLoaded: Boolean(token) }
 }
