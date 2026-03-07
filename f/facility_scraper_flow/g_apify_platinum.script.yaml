@@ -1,0 +1,10 @@
+summary: Build storage platinum dataset grouped by domain
+description: >
+  Reads facility-scraper/storage-gold/gold.json from S3, groups entries by normalized
+  website domain, merges emails/phones, and writes facility-scraper/storage-platinum/platinum.json.
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties: {}
+  required: []

@@ -2,6 +2,7 @@
   "dependencies": {
     "apify-client": "^2.22.2",
     "dayjs": "1.11.19",
+    "papaparse": "^5.5.3",
     "windmill-client": "^1"
   }
 }

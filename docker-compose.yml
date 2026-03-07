@@ -45,12 +45,13 @@ services:
     image: ${WM_IMAGE:-ghcr.io/windmill-labs/windmill:main}
     pull_policy: always
     restart: unless-stopped
-    # One all-purpose worker for local dev. It can run scripts and docker-based jobs.
     privileged: true
+    # Run 2 workers by default for local dev.
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - MODE=worker
       - WORKER_GROUP=default
+      - NUM_WORKERS=2
       - FAVOR_UNSHARE_PID=true
     depends_on:
       db:

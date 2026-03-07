@@ -1,0 +1,10 @@
+summary: Build storage gold dataset from cleaned data and email sources
+description: >
+  Reads cleaned facilities, sitemap-scraped emails, and Hunter CSV imports from S3,
+  merges email sources per row, and writes facility-scraper/storage-gold/gold.json.
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties: {}
+  required: []
