@@ -1,0 +1,8 @@
+summary: Logs hello world
+description: Minimal TypeScript script for local self-hosted Windmill dev.
+kind: script
+schema:
+  $schema: 'https://json-schema.org/draft/2020-12/schema'
+  type: object
+  properties: {}
+  required: []

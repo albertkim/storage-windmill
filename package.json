@@ -1,0 +1,13 @@
+{
+  "name": "windmill-test",
+  "private": true,
+  "scripts": {
+    "wm:up": "./scripts/windmill-up.sh",
+    "wm:down": "docker compose down",
+    "wm:logs": "docker compose logs -f windmill_server windmill_worker",
+    "wm:push": "./scripts/windmill-push.sh"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.19"
+  }
+}
