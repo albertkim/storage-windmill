@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "windmill-test",
+      "name": "storage-windmill",
       "dependencies": {
         "@types/bun": "^1.3.10",
         "@types/papaparse": "^5.5.2",

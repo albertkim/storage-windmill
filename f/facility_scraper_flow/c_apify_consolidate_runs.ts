@@ -77,7 +77,7 @@ async function fetchRunResultItems(apifyClient: ApifyClient, runId: string): Pro
   return allItems
 }
 
-export async function main(runLimit = 100, timezone = DEFAULT_TIMEZONE) {
+export async function main(runLimit = 100) {
   const apifyToken = await wmill.getVariable("f/secrets/apify_api_token")
   const AWS_ACCESS_KEY_ID = await wmill.getVariable("f/secrets/aws_access_key_id")
   const AWS_SECRET_ACCESS_KEY = await wmill.getVariable("f/secrets/aws_secret_access_key")
@@ -126,7 +126,7 @@ export async function main(runLimit = 100, timezone = DEFAULT_TIMEZONE) {
 
   for (const run of runs) {
     runsProcessed += 1
-    const date = runDateUtc(run, timezone)
+    const date = runDateUtc(run, DEFAULT_TIMEZONE)
     if (!date || !run.id) continue
 
     const input = await fetchRunInput(apifyClient, run.id)

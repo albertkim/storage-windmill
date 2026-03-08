@@ -1,8 +1,0 @@
-summary: Hello B
-description: Second step in hello flow.
-kind: script
-schema:
-  $schema: 'https://json-schema.org/draft/2020-12/schema'
-  type: object
-  properties: {}
-  required: []

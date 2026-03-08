@@ -12,9 +12,4 @@ schema:
       description: Number of recent runs to inspect
       default: 100
       originalType: number
-    timezone:
-      type: string
-      description: Timezone used to compute run date for S3 key matching
-      default: America/Vancouver
-      originalType: string
   required: []

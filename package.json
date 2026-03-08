@@ -1,5 +1,5 @@
 {
-  "name": "storage-data",
+  "name": "storage-windmill",
   "type": "module",
   "private": true,
   "scripts": {

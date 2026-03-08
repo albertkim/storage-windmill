@@ -18,12 +18,6 @@ value:
           stateName:
             type: javascript
             expr: flow_input.stateName
-          searchTerm:
-            type: javascript
-            expr: flow_input.searchTerm
-          maxCrawledPlacesPerSearch:
-            type: javascript
-            expr: flow_input.maxCrawledPlacesPerSearch
     - id: c_consolidate
       summary: C - Consolidate runs
       value:
@@ -59,20 +53,10 @@ schema:
   type: object
   order:
     - stateName
-    - searchTerm
-    - maxCrawledPlacesPerSearch
   properties:
     stateName:
       type: string
       description: State/province/location query for Apify scrape (e.g. Quebec)
-    searchTerm:
-      type: string
-      description: Search term passed to Apify Google Maps actor
-      default: self storage
-    maxCrawledPlacesPerSearch:
-      type: number
-      description: Max places to crawl for the Apify run
-      default: 2500
   required:
     - stateName
 ws_error_handler_muted: false
