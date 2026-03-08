@@ -1,11 +1,13 @@
 // package_json: default
 import { S3Client } from "bun"
+import Papa from "papaparse"
 import * as wmill from "windmill-client"
 
 const INPUT_KEY_DEFAULT = "facility-scraper/apify-cleaned/cleaned.json"
 const OUTPUT_PREFIX_DEFAULT = "facility-scraper/storage-scraped-emails/"
 const OUTPUT_JSON_FILE = "domains_to_emails.json"
 const OUTPUT_CSV_FILE = "domains_without_emails.csv"
+const HUNTER_IO_PREFIX = "facility-scraper/hunter-io/"
 const REQUEST_TIMEOUT_MS = 5000
 const PAGE_CONCURRENCY = 10
 const SITEMAP_CONCURRENCY = 4
@@ -28,6 +30,15 @@ type CleanedRow = {
 }
 
 type DomainEmailMap = Record<string, string[]>
+
+const normalizeDomain = (value: string | null | undefined): string | null => {
+  const raw = value?.trim().toLowerCase()
+  if (!raw) return null
+  const withoutProtocol = raw.replace(/^https?:\/\//, "")
+  const host = withoutProtocol.split("/")[0]?.split("?")[0]?.split("#")[0]?.replace(/\.$/, "") ?? ""
+  if (!host) return null
+  return host.replace(/^www\./, "")
+}
 
 const runWithLimit = async <T, R>(items: T[], limit: number, worker: (item: T) => Promise<R>): Promise<R[]> => {
   if (items.length === 0) return []
@@ -212,7 +223,15 @@ const loadExistingEnriched = async (s3Client: S3Client, outputKey: string): Prom
     const existingText = await s3Client.file(outputKey).text()
     const parsed = JSON.parse(existingText) as unknown
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {}
-    return parsed as DomainEmailMap
+    const raw = parsed as DomainEmailMap
+    const normalized: DomainEmailMap = {}
+    for (const [domain, emails] of Object.entries(raw)) {
+      const key = normalizeDomain(domain)
+      if (!key) continue
+      const existing = normalized[key] ?? []
+      normalized[key] = mergeEmails(existing, (emails ?? []).map((email) => normalizeEmail(email)))
+    }
+    return normalized
   } catch {
     return {}
   }
@@ -225,6 +244,52 @@ const mergeEmails = (existing: string[], incoming: string[]): string[] => {
   for (const email of existing) combined.add(email)
   for (const email of incoming) combined.add(email)
   return [...combined]
+}
+
+const resolveField = (fields: string[], match: string): string | null => {
+  const target = match.trim().toLowerCase()
+  const found = fields.find((field) => field.trim().toLowerCase() === target)
+  return found ?? null
+}
+
+const loadHunterDomains = async (s3Client: S3Client): Promise<Set<string>> => {
+  const files: { key: string }[] = []
+  let listOpts: { prefix: string; maxKeys?: number; startAfter?: string } = {
+    prefix: HUNTER_IO_PREFIX
+  }
+  do {
+    const result = await s3Client.list(listOpts)
+    files.push(...(result.contents ?? []))
+    if (result.isTruncated && result.contents?.length) {
+      listOpts = { ...listOpts, startAfter: result.contents.at(-1)!.key }
+    } else {
+      break
+    }
+  } while (true)
+
+  const csvKeys = files.map((f) => f.key).filter((key) => key.toLowerCase().endsWith(".csv"))
+  const domains = new Set<string>()
+
+  for (const csvKey of csvKeys) {
+    const text = await s3Client.file(csvKey).text()
+    const result = Papa.parse<Record<string, string>>(text, {
+      header: true,
+      skipEmptyLines: true
+    })
+
+    const fields = result.meta.fields ?? []
+    const inputDomainField = resolveField(fields, "input domain name")
+    const domainField = resolveField(fields, "domain name")
+
+    for (const row of result.data) {
+      const domainRaw = (inputDomainField && row[inputDomainField]) || (domainField && row[domainField]) || ""
+      const domain = normalizeDomain(domainRaw)
+      if (!domain) continue
+      domains.add(domain)
+    }
+  }
+
+  return domains
 }
 
 export async function main() {
@@ -242,6 +307,7 @@ export async function main() {
 
   const outputKey = `${OUTPUT_PREFIX_DEFAULT}${OUTPUT_JSON_FILE}`
   const csvKey = `${OUTPUT_PREFIX_DEFAULT}${OUTPUT_CSV_FILE}`
+  const hunterDomains = await loadHunterDomains(s3Client)
 
   const fileContents = await s3Client.file(INPUT_KEY_DEFAULT).text()
   const parsed = JSON.parse(fileContents) as unknown
@@ -260,7 +326,7 @@ export async function main() {
 
   const domainSet = new Set<string>()
   for (const row of rows) {
-    const domain = row.websiteUrlDomain?.toLowerCase()?.trim() ?? null
+    const domain = normalizeDomain(row.websiteUrlDomain)
     if (!domain) continue
     if (domain in enriched) continue
     domainSet.add(domain)
@@ -268,6 +334,8 @@ export async function main() {
 
   const domainsToProcess = [...domainSet]
   console.log(`[EMAIL] Processing ${domainsToProcess.length} domains`)
+  let completedDomains = 0
+  const totalDomains = domainsToProcess.length
 
   let writeChain = Promise.resolve()
   const enqueueWrite = async (task: () => Promise<void>) => {
@@ -293,19 +361,28 @@ export async function main() {
         enriched[domain] = mergeEmails(existing, emails)
         await s3Client.file(outputKey).write(JSON.stringify(enriched, null, 2))
       })
+      completedDomains += 1
+      console.log(`[EMAIL] Progress ${completedDomains}/${totalDomains}: ${domain}`)
       console.log(`[EMAIL] Collected ${emails.length} emails for ${origin}`)
     } catch {
+      completedDomains += 1
+      console.log(`[EMAIL] Progress ${completedDomains}/${totalDomains}: ${domain} (failed)`)
       return
     }
   })
 
-  const domainsWithoutEmails = Object.keys(enriched).filter((domain) => (enriched[domain] ?? []).length === 0)
+  const domainsWithoutEmails = Object.keys(enriched).filter((domain) => {
+    if ((enriched[domain] ?? []).length > 0) return false
+    if (hunterDomains.has(domain)) return false
+    return true
+  })
   const csv = `domain\n${domainsWithoutEmails.map((domain) => `${domain}\n`).join("")}`
   await s3Client.file(csvKey).write(csv)
 
   return {
     domainsSeen: Object.keys(enriched).length,
     domainsProcessedThisRun: domainsToProcess.length,
+    hunterDomainsSeen: hunterDomains.size,
     domainsWithoutEmails: domainsWithoutEmails.length,
     outputKey,
     csvKey

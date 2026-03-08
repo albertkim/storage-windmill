@@ -5,9 +5,9 @@ const SOURCE_PREFIX = "facility-scraper/apify/"
 const CLEANED_PREFIX = "facility-scraper/apify-cleaned/"
 const OUTPUT_KEY = `${CLEANED_PREFIX}cleaned.json`
 
-const whitelistedNameKeywords = ["storage"]
-
-const blockedCategoryKeywords = [
+const REQUIRED_NAME_KEYWORDS = ["storage"]
+const REQUIRED_CATEGORY_KEYWORDS = ["storage"]
+const BLOCKED_CATEGORY_KEYWORDS = [
   "groceries",
   "grocery",
   "general",
@@ -80,9 +80,13 @@ const processRawRow = (
   const rawTitleText = typeof row.title === "string" ? row.title : ""
   const normalizedTitleText = rawTitleText.toLowerCase()
 
-  const hasWhitelistedKeyword = whitelistedNameKeywords.some((keyword) => normalizedTitleText.includes(keyword))
-  const hasBlockedCategory = blockedCategoryKeywords.some((keyword) => normalizedCategoryText.includes(keyword))
-  if (!hasWhitelistedKeyword && hasBlockedCategory) return null
+  const hasNameKeyword = REQUIRED_NAME_KEYWORDS.some((keyword) => normalizedTitleText.includes(keyword))
+  const hasCategoryKeyword = REQUIRED_CATEGORY_KEYWORDS.some((keyword) => normalizedCategoryText.includes(keyword))
+  const hasBlockedCategoryKeyword = BLOCKED_CATEGORY_KEYWORDS.some((keyword) =>
+    normalizedCategoryText.includes(keyword)
+  )
+  if (hasBlockedCategoryKeyword) return null
+  if (!hasNameKeyword && !hasCategoryKeyword) return null
 
   const title = toNullableString(row.title)
   const url = toNullableString(row.url)

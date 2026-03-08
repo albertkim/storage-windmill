@@ -18,9 +18,13 @@ type GoldRow = SilverRow & {
   emails: string[]
 }
 
-const normalizeDomain = (domain: string | null | undefined): string | null => {
-  const trimmed = domain?.trim().toLowerCase()
-  return trimmed ? trimmed : null
+const normalizeDomain = (value: string | null | undefined): string | null => {
+  const raw = value?.trim().toLowerCase()
+  if (!raw) return null
+  const withoutProtocol = raw.replace(/^https?:\/\//, "")
+  const host = withoutProtocol.split("/")[0]?.split("?")[0]?.split("#")[0]?.replace(/\.$/, "") ?? ""
+  if (!host) return null
+  return host.replace(/^www\./, "")
 }
 
 const normalizeEmail = (email: string): string => email.trim().toLowerCase()
